@@ -1,0 +1,250 @@
+/* estilo "boleto de cine": terciopelo rojo, papel crema y dorado de marquesina */
+:root {
+  --butaca-velvet: #7a1424;
+  --butaca-velvet-dark: #4e0b17;
+  --butaca-paper: #f7efdf;
+  --butaca-paper-dark: #eadcc2;
+  --butaca-ink: #2b1a12;
+  --butaca-muted: #8a7563;
+  --butaca-gold: #e3a92b;
+  --butaca-radius: 14px;
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #1b1416;
+  color: #f3e9d8;
+}
+
+.demo-page {
+  max-width: 620px;
+  margin: 90px auto;
+  padding: 0 24px;
+  line-height: 1.6;
+}
+.demo-page h1 {
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--butaca-gold);
+}
+
+.agichat-root {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.agichat-launcher {
+  width: 62px;
+  height: 62px;
+  border-radius: 18px;
+  border: 3px dashed var(--butaca-gold);
+  background: var(--butaca-velvet);
+  color: var(--butaca-paper);
+  font-size: 26px;
+  cursor: pointer;
+  transform: rotate(-6deg);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s ease;
+}
+.agichat-launcher:hover {
+  transform: rotate(0deg) scale(1.05);
+}
+
+.agichat-panel {
+  width: min(370px, calc(100vw - 28px));
+  height: min(590px, calc(100vh - 120px));
+  display: flex;
+  flex-direction: column;
+  background: var(--butaca-paper);
+  color: var(--butaca-ink);
+  border-radius: var(--butaca-radius);
+  overflow: hidden;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.5);
+}
+
+/* cabecera tipo talón del boleto, con el borde perforado abajo */
+.agichat-header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px 20px;
+  background: var(--butaca-velvet);
+  color: var(--butaca-paper);
+}
+.agichat-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 14px;
+  background: radial-gradient(circle at 7px 7px, var(--butaca-paper) 5px, transparent 5.5px) repeat-x;
+  background-size: 14px 14px;
+}
+.agichat-header div {
+  display: flex;
+  flex-direction: column;
+}
+.agichat-header strong {
+  font-family: "Courier New", monospace;
+  font-size: 20px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.agichat-header button {
+  background: none;
+  border: none;
+  color: var(--butaca-paper);
+  font-size: 18px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+.agichat-status {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+.agichat-status-open::before {
+  content: "● ";
+  color: var(--butaca-gold);
+}
+
+.agichat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.agichat-msg {
+  max-width: 86%;
+  padding: 10px 13px;
+  border-radius: 12px;
+  line-height: 1.45;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+.agichat-msg p {
+  margin: 0 0 6px;
+}
+.agichat-msg p:last-child {
+  margin-bottom: 0;
+}
+.agichat-msg a {
+  color: var(--butaca-velvet);
+  font-weight: 600;
+}
+.agichat-msg-assistant {
+  align-self: flex-start;
+  background: #fffaf0;
+  border: 1px solid var(--butaca-paper-dark);
+  border-left: 4px solid var(--butaca-gold);
+}
+.agichat-msg-user {
+  align-self: flex-end;
+  background: var(--butaca-velvet);
+  color: var(--butaca-paper);
+}
+.agichat-msg-system {
+  align-self: center;
+  color: var(--butaca-muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.agichat-poster {
+  display: block;
+  width: 130px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(43, 26, 18, 0.25);
+  transform: rotate(-1.5deg);
+}
+.agichat-blocked-img {
+  color: var(--butaca-muted);
+  font-style: italic;
+}
+
+.agichat-typing {
+  display: flex;
+  gap: 5px;
+  padding: 12px 14px;
+  align-self: flex-start;
+}
+.agichat-typing span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--butaca-velvet);
+  animation: butaca-pop 1.1s infinite ease-in-out;
+}
+.agichat-typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.agichat-typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes butaca-pop {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.agichat-composer {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 2px dashed var(--butaca-paper-dark);
+}
+.agichat-composer input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--butaca-paper-dark);
+  background: #fffaf0;
+  color: var(--butaca-ink);
+  font-size: 14px;
+}
+.agichat-composer input:focus {
+  outline: 2px solid var(--butaca-gold);
+}
+.agichat-composer button {
+  width: 42px;
+  border-radius: 10px;
+  border: none;
+  background: var(--butaca-velvet);
+  color: var(--butaca-paper);
+  cursor: pointer;
+}
+.agichat-composer button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.agichat-attribution {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 8px;
+  font-size: 9px;
+  color: var(--butaca-muted);
+}

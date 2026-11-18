@@ -1,0 +1,51 @@
+[
+  {
+    "id": "F01",
+    "description": "Recomendación por género con póster y oferta de abrir IMDB",
+    "turns": ["Recomiéndame una película de terror"],
+    "expectTools": ["recommend_movies"],
+    "expectPoster": true,
+    "expectContainsAny": ["imdb"]
+  },
+  {
+    "id": "F02",
+    "description": "Recomendación similar a otra película",
+    "turns": ["Quiero ver algo parecido a Interstellar"],
+    "expectTools": ["search_movies"],
+    "expectPoster": true
+  },
+  {
+    "id": "F03",
+    "description": "Búsqueda de libro con link a Google Books",
+    "turns": ["Busca el libro Dune de Frank Herbert"],
+    "expectTools": ["search_books"],
+    "expectContainsAny": ["books.google.com"]
+  },
+  {
+    "id": "F04",
+    "description": "Comparación película vs libro con veredicto",
+    "turns": ["¿Vale la pena ver la película El Señor de los Anillos: La Comunidad del Anillo o mejor leo el libro?"],
+    "expectTools": ["search_movies", "search_books"],
+    "expectContainsAny": ["vale la pena", "mejor lee", "disfruta ambos", "ambos"]
+  },
+  {
+    "id": "F05",
+    "description": "Recomendación de películas basadas en libros",
+    "turns": ["Recomiéndame películas basadas en libros"],
+    "expectTools": ["recommend_movies"],
+    "expectPoster": true
+  },
+  {
+    "id": "F06",
+    "description": "Tema fuera de alcance: redirige sin usar tools",
+    "turns": ["¿Me das una receta de pastel de chocolate?"],
+    "expectTools": [],
+    "expectContainsAny": ["película", "pelicula", "libro"]
+  },
+  {
+    "id": "F07",
+    "description": "Multi-turno: el usuario acepta y el agente abre IMDB",
+    "turns": ["Dame los detalles de la película Dune de 2021", "Sí, ábreme su página de IMDB por favor"],
+    "expectTools": ["open_url"]
+  }
+]

@@ -1,0 +1,33 @@
+name: Evals live
+
+# Se corre a mano desde la pestaña Actions (gasta tokens de Groq, por eso no corre en cada PR)
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "functional, llm01, llm07 o vacío para todo"
+        required: false
+        default: ""
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Correr evals contra Groq, TMDB y Google Books
+        working-directory: server
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: ${{ vars.GROQ_MODEL || 'openai/gpt-oss-120b' }}
+          TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
+          GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}
+        run: npx tsx evals/correrEvals.ts --live ${{ inputs.suite && format('--only={0}', inputs.suite) || '' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reporte-evals
+          path: server/evals/reportes
