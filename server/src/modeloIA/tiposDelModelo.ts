@@ -3,6 +3,8 @@ export interface ToolCall {
   id: string;
   name: string;
   arguments: Record<string, unknown>;
+  // datos extra que algunos proveedores exigen que se les devuelvan tal cual (ej. thought_signature de Gemini 3)
+  extra?: Record<string, unknown>;
 }
 
 export type ChatMessage =

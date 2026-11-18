@@ -10,6 +10,8 @@ Las herramientas que usan los agentes no están metidas en el código de los age
 
 En el backend usamos Node.js 22 con TypeScript, Express y `ws` para el WebSocket, el SDK oficial de MCP (`@modelcontextprotocol/sdk`) para los servidores de herramientas, `zod` para validar entradas y Groq como proveedor del LLM (por defecto `openai/gpt-oss-120b`, que está hecho para tool calling y tiene tier gratuito; el modelo se cambia con la variable `GROQ_MODEL` sin tocar código). El widget está hecho con React 18 y Vite, y los mensajes se renderizan con `react-markdown`, que es lo que permite mostrar el póster dentro del chat. Los tests son con Vitest y Testing Library, y el lint con ESLint y typescript-eslint.
 
+El proveedor del modelo tampoco está amarrado a Groq: si en el `.env` se pone `LLM_BASE_URL`, el server usa cualquier API compatible con OpenAI (por ejemplo Cerebras, que también tiene `gpt-oss-120b` gratis) a través de otro adaptador, `modeloIA/clienteOpenAICompatible.ts`, que cumple la misma interfaz `LLMClient`. Nos tocó usarlo de verdad cuando se nos acabó la cuota diaria de Groq probando, y el cambio fue solo de configuración.
+
 Escogimos TypeScript en los dos lados para compartir la forma de pensar los tipos (los mensajes del WebSocket, por ejemplo) y porque el compilador nos atrapa muchos errores antes de correr nada. Groq lo escogimos porque ya lo habíamos usado en las hojas de trabajo, no pide tarjeta y responde rápido.
 
 ## Arquitectura de alto nivel
@@ -116,6 +118,18 @@ npm run evals -- --only=llm01      # una suite: functional, llm01 o llm07
 
 Los ataques se corren dos veces, una con el sistema completo y otra "solo modelo", saltándose las guardias, para ver cuánto aguanta el prompt por su cuenta y cuánto aporta cada capa. Los reportes quedan en `server/evals/reportes/`. Con el tier gratis de Groq conviene correr una suite a la vez, porque cada caso hace varias llamadas al modelo.
 
+### Evals con promptfoo
+
+Además del runner propio, los mismos casos están escritos para [promptfoo](https://www.promptfoo.dev/) en `server/evals/promptfoo/promptfooconfig.yaml`. Promptfoo le manda cada caso al server por HTTP (`POST /api/chat`), así que prueba el sistema completo de punta a punta, y revisa con aserciones que las respuestas de uso normal traigan póster y links, que ningún ataque logre que el modelo diga lo que el atacante quiere (`PWNED`, `HACKED`, código malicioso) y que en ninguna respuesta aparezca el canary token, frases del system prompt ni nombres internos de las herramientas.
+
+```bash
+npm run dev:server                     # en una terminal
+npm run evals:promptfoo -w server      # en otra; deja el reporte en server/evals/reportes/promptfoo-resultados.html
+npm run evals:promptfoo:ver -w server  # visor web de promptfoo
+```
+
+Usamos los dos porque se complementan: promptfoo es la herramienta estándar para correr y comparar casos de prueba contra el sistema real, y el runner propio cubre lo que por HTTP no se puede, que es envenenar los datos de las APIs para probar la inyección indirecta y medir cada capa por separado (con y sin guardias).
+
 ## Cómo están organizadas las carpetas
 
 ```
@@ -127,7 +141,7 @@ AI-Proyecto-Final/
 │   │   ├── conversacion/         servicioDeChat (une todas las capas) e historialDeSesiones
 │   │   ├── seguridad/            guardiaDeEntrada, guardiaDeSalida, patronesDeAtaque, limpiarDatosDeHerramientas
 │   │   ├── servidorWeb/          Express + WebSocket + rate limit
-│   │   ├── modeloIA/             tiposDelModelo (la interfaz) y clienteGroq
+│   │   ├── modeloIA/             tiposDelModelo (la interfaz), clienteGroq, clienteOpenAICompatible y crearClienteLLM
 │   │   ├── mcp/                  un folder por MCP server
 │   │   │   ├── peliculas-tmdb/   clienteApiTmdb, servidorMcpPeliculas, iniciarPorStdio
 │   │   │   ├── libros-google/    clienteApiGoogleBooks, servidorMcpLibros, iniciarPorStdio
@@ -173,7 +187,7 @@ npm run dev:server             # terminal 1, http://localhost:3001
 npm run dev:widget             # terminal 2, http://localhost:5173
 ```
 
-La key de Groq sale de https://console.groq.com/keys. La de TMDB se pide en themoviedb.org en Settings → API, como uso no comercial y aclarando que es para el curso CC3116 de la Universidad del Valle de Guatemala; hay que usar el *API Read Access Token*. La de Google Books es opcional, se crea en Google Cloud Console habilitando la Books API, y no hay que registrar ningún método de pago.
+La key de Groq sale de https://console.groq.com/keys (si se acaba la cuota del día, se puede usar Cerebras desde https://cloud.cerebras.ai poniendo `LLM_BASE_URL`, `LLM_API_KEY` y `LLM_MODEL` en el `.env`). La de TMDB se pide en themoviedb.org en Settings → API, como uso no comercial y aclarando que es para el curso CC3116 de la Universidad del Valle de Guatemala; hay que usar el *API Read Access Token*. La de Google Books es opcional, se crea en Google Cloud Console habilitando la Books API, y no hay que registrar ningún método de pago.
 
 Para usar los MCP servers desde otro agente, como Claude Desktop, se pueden levantar por stdio:
 

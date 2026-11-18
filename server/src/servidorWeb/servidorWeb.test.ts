@@ -39,6 +39,19 @@ describe("HTTP + WebSocket", () => {
     expect(res.body).toEqual({ status: "ok" });
   });
 
+  it("POST /api/chat responde por HTTP (lo usa promptfoo)", async () => {
+    const res = await request(createApp(chat)).post("/api/chat").send({ sessionId: "s1", text: "hola" });
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ text: "Hola 🎬", actions: [] });
+  });
+
+  it("POST /api/chat valida el cuerpo y aplica rate limit", async () => {
+    const malo = await request(createApp(chat)).post("/api/chat").send({ text: 5 });
+    expect(malo.status).toBe(400);
+    const limitado = await request(createApp(chat, { allow: () => false })).post("/api/chat").send({ sessionId: "s", text: "x" });
+    expect(limitado.status).toBe(429);
+  });
+
   it("manda typing y luego la respuesta del asistente", async () => {
     const { ws } = await start(chat);
     const msgs = nextMessages(ws, 2);

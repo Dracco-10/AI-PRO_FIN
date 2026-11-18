@@ -12,6 +12,8 @@
     "test:coverage": "vitest run --coverage",
     "evals": "tsx evals/correrEvals.ts --live",
     "evals:offline": "tsx evals/correrEvals.ts",
+    "evals:promptfoo": "PROMPTFOO_DISABLE_TELEMETRY=1 npx -y promptfoo@0.118.0 eval -c evals/promptfoo/promptfooconfig.yaml --no-cache -j 1 --delay 6000 -o evals/reportes/promptfoo-resultados.html",
+    "evals:promptfoo:ver": "PROMPTFOO_DISABLE_TELEMETRY=1 npx -y promptfoo@0.118.0 view",
     "mcp:peliculas": "tsx src/mcp/peliculas-tmdb/iniciarPorStdio.ts",
     "mcp:libros": "tsx src/mcp/libros-google/iniciarPorStdio.ts",
     "mcp:navegador": "tsx src/mcp/navegador/iniciarPorStdio.ts"
