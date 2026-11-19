@@ -29,7 +29,8 @@ export function toGroqMessages(messages: ChatMessage[]): Record<string, unknown>
         tool_calls: m.toolCalls.map((t) => ({
           id: t.id,
           type: "function",
-          function: { name: t.name, arguments: JSON.stringify(t.arguments) }
+          function: { name: t.name, arguments: JSON.stringify(t.arguments) },
+          ...(t.extra ? { extra_content: t.extra } : {})
         }))
       };
     }

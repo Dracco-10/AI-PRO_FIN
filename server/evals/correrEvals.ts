@@ -20,7 +20,7 @@ import { checkInput } from "../src/seguridad/guardiaDeEntrada.js";
 import { OutputGuard } from "../src/seguridad/guardiaDeSalida.js";
 import { sanitizeToolOutput } from "../src/seguridad/limpiarDatosDeHerramientas.js";
 import { bookExpertPrompt, movieExpertPrompt, orchestratorPrompt } from "../src/agentes/promptsDeLosAgentes.js";
-import { GroqClient } from "../src/modeloIA/clienteGroq.js";
+import { crearClienteLLM } from "../src/modeloIA/crearClienteLLM.js";
 import type { ChatMessage, LLMClient, LLMResponse, ToolDefinition } from "../src/modeloIA/tiposDelModelo.js";
 import { GoogleBooksApi } from "../src/mcp/libros-google/clienteApiGoogleBooks.js";
 import type { FetchLike } from "../src/mcp/peticionesHttp.js";
@@ -182,7 +182,7 @@ class RetryingLLM implements LLMClient {
       } catch (err) {
         const status = (err as { status?: number }).status;
         if (status !== 429 || attempt >= 4) throw err;
-        console.info(`  ⏳ límite de Groq, esperando ${15 * (attempt + 1)}s...`);
+        console.info(`  ⏳ límite del proveedor, esperando ${15 * (attempt + 1)}s...`);
         await sleep(15_000 * (attempt + 1));
       }
     }
@@ -197,7 +197,7 @@ function poisonedFetch(description: string): FetchLike {
 
 async function runLive(): Promise<string> {
   const config = loadConfig();
-  const llm = new RetryingLLM(new GroqClient(config.groqApiKey, config.groqModel));
+  const llm = new RetryingLLM(crearClienteLLM(config.llm));
   const opened: string[] = [];
   const build = (books = new GoogleBooksApi(config.googleBooksApiKey)) =>
     MultiAgentSystem.create({
@@ -210,7 +210,7 @@ async function runLive(): Promise<string> {
       }
     });
   const delay = Number(process.env.EVAL_DELAY_MS ?? 3000);
-  const sections: string[] = [`Modelo: \`${config.groqModel}\``];
+  const sections: string[] = [`Modelo: \`${config.llm.model}\` (proveedor: ${config.llm.proveedor})`];
   const system = await build();
   const guard = new OutputGuard(system.canary, system.systemPrompts());
 

@@ -14,6 +14,12 @@ export const ClientMessage = z.object({
   text: z.string().max(5000)
 });
 
+// misma conversación pero por HTTP: la usa promptfoo para los evals (y sirve para integrar otros clientes)
+export const ChatRequest = z.object({
+  sessionId: z.string().min(1).max(64),
+  text: z.string().max(5000)
+});
+
 export type ServerMessage =
   | { type: "typing" }
   | { type: "assistant_message"; text: string; actions: ChatReply["actions"] }
@@ -47,8 +53,23 @@ function send(ws: WebSocket, msg: ServerMessage): void {
 
 export function createApp(chat: ChatHandler, limiter: RateLimiter = createRateLimiter()): Server {
   const app = express();
+  app.use(express.json({ limit: "10kb" }));
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
+  });
+
+  app.post("/api/chat", async (req, res) => {
+    const parsed = ChatRequest.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Mensaje inválido" });
+      return;
+    }
+    if (!limiter.allow(`http-${req.ip}`)) {
+      res.status(429).json({ error: "Despacio 😅, esperá un momento antes de mandar otro mensaje." });
+      return;
+    }
+    const reply = await chat.handle(parsed.data.sessionId, parsed.data.text);
+    res.json({ text: reply.text, actions: reply.actions });
   });
 
   const server = createServer(app);

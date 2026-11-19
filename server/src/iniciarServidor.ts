@@ -7,14 +7,14 @@ import { InMemorySessionStore } from "./conversacion/historialDeSesiones.js";
 import { loadConfig } from "./configuracion.js";
 import { OutputGuard } from "./seguridad/guardiaDeSalida.js";
 import { createApp } from "./servidorWeb/servidorWeb.js";
-import { GroqClient } from "./modeloIA/clienteGroq.js";
+import { crearClienteLLM } from "./modeloIA/crearClienteLLM.js";
 import { GoogleBooksApi } from "./mcp/libros-google/clienteApiGoogleBooks.js";
 import { TmdbApi } from "./mcp/peliculas-tmdb/clienteApiTmdb.js";
 
 const config = loadConfig();
 
 const system = await MultiAgentSystem.create({
-  llm: new GroqClient(config.groqApiKey, config.groqModel),
+  llm: crearClienteLLM(config.llm),
   tmdb: new TmdbApi(config.tmdbAccessToken),
   books: new GoogleBooksApi(config.googleBooksApiKey),
   opener:
@@ -33,5 +33,5 @@ const chat = new ChatService(
 );
 
 createApp(chat).listen(config.port, () => {
-  console.info(`Butaca escuchando en http://localhost:${config.port} (websocket en /ws)`);
+  console.info(`Butaca escuchando en http://localhost:${config.port} (websocket en /ws) · LLM: ${config.llm.model} en ${config.llm.proveedor}`);
 });

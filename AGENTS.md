@@ -42,6 +42,7 @@ Antes de dar por terminado un cambio corré `npm run lint && npm run typecheck &
 - `server/src/mcp/<servidor>/`: `clienteApi...` (REST), `servidorMcp...` (tools con zod) e `iniciarPorStdio.ts`.
 - `server/src/seguridad/`: guardia de entrada, guardia de salida (canary + huellas del prompt), patrones de ataque y limpieza de datos de herramientas.
 - `server/src/conversacion/servicioDeChat.ts`: entrada → agentes → salida → historial.
+- `server/src/modeloIA/crearClienteLLM.ts`: escoge el adaptador del LLM (Groq o cualquier API compatible con OpenAI según `LLM_BASE_URL`).
 
 ## Cómo agregar cosas
 
